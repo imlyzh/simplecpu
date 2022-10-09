@@ -4,6 +4,9 @@
 use super::utils;
 
 
+/////////////////////////////
+/// part of inst
+
 macro_rules! opcode {
   ($i:expr) => {
     bits!($i, 6, 0) as u8
@@ -12,7 +15,7 @@ macro_rules! opcode {
 
 macro_rules! rd {
     ($i:expr) => {
-      bits!($i, 7, 11) as u8
+      bits!($i, 11, 7) as u8
     };
 }
 
@@ -80,7 +83,57 @@ macro_rules! jimm {
   };
 }
 
+//////////////////////////////////////////
+/// inst type get params
 
+macro_rules! rtype {
+  ($rd:ident, $rs1:ident, $rs2:ident, $src:expr) => {
+    let $rd = rd!($src);
+    let $rs1 = rs1!($src);
+    let $rs2 = rs2!($src);
+  };
+}
+
+macro_rules! itype {
+  ($rd:ident, $rs1:ident, $imm:ident, $src:expr) => {
+    let $rd = rd!($src);
+    let $rs1 = rs1!($src);
+    let $imm = sext!(iimm!($src), 12, 32);
+  };
+}
+
+macro_rules! stype {
+  ($rd:ident, $rs1:ident, $rs2:ident, $imm:ident, $src:expr) => {
+    let $rd = rd!($src);
+    let $rs1 = rs1!($src);
+    let $rs2 = rs2!($src);
+    let $imm = sext!(simm!($src), 12, 32);
+  };
+}
+
+macro_rules! utype {
+  ($rd:ident, $imm:ident, $src:expr) => {
+    let $rd = rd!($src);
+    let $imm = uimm!($src) << 12;
+  };
+}
+
+macro_rules! btype {
+  ($rs1:ident, $rs2:ident, $branch:ident, $src:expr) => {
+    let $rs1 = rs1!($src);
+    let $rs2 = rs2!($src);
+    let $branch = sext!(bimm!($src), 12, 32);
+  };
+}
+
+macro_rules! jtype {
+  ($rd:ident, $branch:ident, $src:expr) => {
+    let $rd = rd!($src);
+    let $branch = sext!(jimm!($src), 20, 32);
+  };
+}
+
+/*
 /// rtype(x) -> (rd, rs1, rs2)
 #[inline(always)]
 pub fn rtype(i: u32) -> (u8, u8, u8) {
@@ -115,4 +168,23 @@ pub fn btype(i: u32) -> (u8, u8, u32) {
 #[inline(always)]
 pub fn jtype(i: u32) -> (u8, u32) {
   (rd!(i), sext!(jimm!(i), 20, 32))
+}
+// */
+
+
+
+#[cfg(test)]
+mod tests {
+
+  #[test]
+  fn test_r_type() {
+    use super::rtype;
+
+    let src: u32 = 0b00000000_00000000_00000011_01011011;
+    let (rd, rs1, rs2) = rtype(src);
+    assert_eq!(rd, 0b110);
+    rtype_!(rd, __, __, src);
+    assert_eq!(rd, 0b110);
+    // rtype_!()
+  }
 }
