@@ -176,15 +176,4 @@ pub fn jtype(i: u32) -> (u8, u32) {
 #[cfg(test)]
 mod tests {
 
-  #[test]
-  fn test_r_type() {
-    use super::rtype;
-
-    let src: u32 = 0b00000000_00000000_00000011_01011011;
-    let (rd, rs1, rs2) = rtype(src);
-    assert_eq!(rd, 0b110);
-    rtype_!(rd, __, __, src);
-    assert_eq!(rd, 0b110);
-    // rtype_!()
-  }
 }
